@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newman Rugby Academy | Training Sheets</title>
+    
+    <!-- React & Tailwind -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Print Styles */
+        @media print {
+            @page {
+                size: landscape; /* or portrait, depending on preference. Landscape works well for dashboards */
+                margin: 0.5cm;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background: white;
+            }
+            .page-break {
+                break-after: page;
+                page-break-after: always;
+            }
+            .no-print {
+                display: none;
+            }
+            .print-container {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        .font-brand {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        .brand-red {
+            background-color: #D00000;
+        }
+        
+        .text-brand-red {
+            color: #D00000;
+        }
+
+        .border-brand-red {
+            border-color: #D00000;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- DATA ---
+        
+        const LIONESS_DATA = [
+            {
+                block: "BLOCK 1: THE CAMPAIGN",
+                day: "MONDAY",
+                title: "DENSITY FORCE",
+                subtitle: "Jan - Feb | Focus: Contact Dominance",
+                type: "standard",
+                exercises: [
+                    { name: "WARM: Wall Tibs + Neck Iso", sets: "2", reps: "15", rest: "-", notes: "Prepare for contact" },
+                    { name: "A1. Trap Bar Deadlift", sets: "4", reps: "5", rest: "60s", notes: "Control down. Explode up." },
+                    { name: "A2. Box Jump", sets: "4", reps: "3", rest: "90s", notes: "Contrast power" },
+                    { name: "B1. Landmine Press", sets: "4", reps: "6/arm", rest: "45s", notes: "Lean forward. Drive hip." },
+                    { name: "B2. Weighted Chin Up", sets: "4", reps: "5", rest: "45s", notes: "Or Heavy Lat Pulldown" },
+                    { name: "C. Turkish Get Up", sets: "3", reps: "2/side", rest: "60s", notes: "Shoulder stability" }
+                ]
+            },
+            {
+                block: "BLOCK 1: THE CAMPAIGN",
+                day: "THURSDAY",
+                title: "TUNE UP",
+                subtitle: "Recovery & Preparation Session",
+                type: "thursday",
+                options: {
+                    a: { title: "OPTION A: PLAYED (+40 MINS)", focus: "Flush", tasks: ["Bike Flush (Zone 1) - 15 Mins", "Copenhagen Plank - 3 x 20s", "Band Pull Aparts - 3 x 25"] },
+                    b: { title: "OPTION B: NON-SELECTION", focus: "Armour Building (Italian Vol)", tasks: ["A1. Goblet Squat - 3 x 10", "A2. DB Bench Press - 3 x 10", "B1. RDL - 3 x 10", "B2. DB Row - 3 x 12"] }
+                }
+            },
+            {
+                block: "BLOCK 1: THE CAMPAIGN",
+                day: "FRIDAY",
+                title: "THE ENGINE ROOM",
+                subtitle: "Gut Check Session",
+                type: "standard",
+                exercises: [
+                    { name: "A1. Landmine Rotations", sets: "3", reps: "8/side", rest: "45s", notes: "Core stiffness" },
+                    { name: "A2. Broad Jumps", sets: "3", reps: "3", rest: "45s", notes: "Reset every jump" },
+                    { name: "B. KB Swing (Heavy)", sets: "4", reps: "10", rest: "60s", notes: "Hips, not arms" },
+                    { name: "C. FINISHER: Farmers Carry", sets: "3", reps: "40m", rest: "90s", notes: "THE GUT CHECK. Heavy." }
+                ]
+            },
+            // BLOCK 2
+            {
+                block: "BLOCK 2: SPEED PEAK",
+                day: "MONDAY",
+                title: "BALLISTIC DENSITY",
+                subtitle: "March | Focus: Transfer Strength to Speed",
+                type: "standard",
+                exercises: [
+                    { name: "A1. Trap Bar Jumps", sets: "4", reps: "4", rest: "60s", notes: "Light load. Fly." },
+                    { name: "A2. Med Ball Slams", sets: "4", reps: "6", rest: "90s", notes: "Violent intent" },
+                    { name: "B1. Push Press", sets: "4", reps: "5", rest: "60s", notes: "Leg drive" },
+                    { name: "B2. Plyo Push Up", sets: "4", reps: "5", rest: "90s", notes: "Explosive off floor/bench" },
+                    { name: "C. KB Snatch", sets: "3", reps: "6/arm", rest: "60s", notes: "Work capacity power" }
+                ]
+            },
+            {
+                block: "BLOCK 2: SPEED PEAK",
+                day: "THURSDAY",
+                title: "TUNE UP",
+                subtitle: "Recovery & Preparation Session",
+                type: "thursday",
+                options: {
+                    a: { title: "OPTION A: PLAYED (+40 MINS)", focus: "Flush", tasks: ["Bike Flush (Zone 1) - 15 Mins", "Copenhagen Plank - 3 x 20s", "Band Pull Aparts - 3 x 25"] },
+                    b: { title: "OPTION B: NON-SELECTION", focus: "Armour Building (Italian Vol)", tasks: ["A1. Goblet Squat - 3 x 10", "A2. DB Bench Press - 3 x 10", "B1. RDL - 3 x 10", "B2. DB Row - 3 x 12"] }
+                }
+            },
+            {
+                block: "BLOCK 2: SPEED PEAK",
+                day: "FRIDAY",
+                title: "CONTACT CONDITIONING",
+                subtitle: "March | Focus: Neck & Crawling",
+                type: "standard",
+                exercises: [
+                    { name: "A. Wrestle Prep (Neck)", sets: "4", reps: "15s", rest: "-", notes: "Pummeling / Neck Iso" },
+                    { name: "B. Bear Crawl", sets: "4", reps: "20m", rest: "-", notes: "Low hips. Trunk stability" },
+                    { name: "C. Flying 10s", sets: "4", reps: "1", rest: "Max", notes: "Max Velocity exposure" }
+                ]
+            },
+            // BLOCK 3
+            {
+                block: "BLOCK 3: EXAM MODE",
+                day: "MONDAY",
+                title: "FULL BODY ARMOUR",
+                subtitle: "Apr - Jun | Focus: Min Effective Dose",
+                type: "standard",
+                exercises: [
+                    { name: "1. Trap Bar DL", sets: "3", reps: "5", rest: "2m", notes: "Heavy but clean" },
+                    { name: "2. Overhead Press", sets: "3", reps: "6", rest: "90s", notes: "Superset with Pull Ups" },
+                    { name: "3. Pull Up / Row", sets: "3", reps: "8", rest: "90s", notes: "Upper back volume" }
+                ]
+            },
+            {
+                block: "BLOCK 3: EXAM MODE",
+                day: "FRIDAY",
+                title: "STRESS RELIEF PUMP",
+                subtitle: "Apr - Jun | Focus: Mental Clearing",
+                type: "standard",
+                exercises: [
+                    { name: "1. Goblet Squat", sets: "3", reps: "12", rest: "60s", notes: "Flow" },
+                    { name: "2. Push Ups", sets: "3", reps: "AMRAP", rest: "60s", notes: "Chest pump" },
+                    { name: "3. Zone 2 Run/Bike", sets: "1", reps: "15m", rest: "-", notes: "Mental clearing" }
+                ]
+            },
+            // BLOCK 4
+            {
+                block: "BLOCK 4: MATCH READY",
+                day: "MONDAY",
+                title: "STRENGTH MAINTENANCE",
+                subtitle: "Aug - Sep | Focus: Maintain Force",
+                type: "standard",
+                exercises: [
+                    { name: "1. Trap Bar DL", sets: "3", reps: "5", rest: "2m", notes: "Heavy but clean" },
+                    { name: "2. Overhead Press", sets: "3", reps: "6", rest: "90s", notes: "Superset with Pull Ups" },
+                    { name: "3. Pull Up / Row", sets: "3", reps: "8", rest: "90s", notes: "Upper back volume" }
+                ]
+            },
+            {
+                block: "BLOCK 4: MATCH READY",
+                day: "THURSDAY",
+                title: "TUNE UP",
+                subtitle: "Recovery & Preparation Session",
+                type: "thursday",
+                options: {
+                    a: { title: "OPTION A: PLAYED (+40 MINS)", focus: "Flush", tasks: ["Bike Flush (Zone 1) - 15 Mins", "Copenhagen Plank - 3 x 20s", "Band Pull Aparts - 3 x 25"] },
+                    b: { title: "OPTION B: NON-SELECTION", focus: "Armour Building", tasks: ["A1. Goblet Squat - 3 x 10", "A2. DB Bench Press - 3 x 10", "B1. RDL - 3 x 10", "B2. DB Row - 3 x 12"] }
+                }
+            },
+            {
+                block: "BLOCK 4: MATCH READY",
+                day: "FRIDAY",
+                title: "THE NORWEGIAN 4x4",
+                subtitle: "Aug - Sep | Focus: VO2 Max Engine",
+                type: "interval",
+                headers: ["Interval", "Intensity (RPE)", "Duration", "Notes"],
+                rows: [
+                    { col1: "Work 1", col2: "RPE 8-9", col3: "4 Mins", col4: "Hard breathing. Can't talk." },
+                    { col1: "Rest 1", col2: "RPE 3", col3: "3 Mins", col4: "Keep moving slowly." },
+                    { col1: "Work 2", col2: "RPE 9", col3: "4 Mins", col4: "Sustain the pace." },
+                    { col1: "Rest 2", col2: "RPE 3", col3: "3 Mins", col4: "Recover." },
+                    { col1: "Work 3", col2: "RPE 9", col3: "4 Mins", col4: "Mental battle." },
+                    { col1: "Rest 3", col2: "RPE 3", col3: "3 Mins", col4: "Recover." },
+                    { col1: "Work 4", col2: "RPE 10", col3: "4 Mins", col4: "Empty the tank." }
+                ]
+            }
+        ];
+
+        const PANTHER_DATA = [
+            // BLOCK 1
+            {
+                block: "BLOCK 1: NEURAL PRIME",
+                day: "MONDAY",
+                title: "MAX FORCE",
+                subtitle: "Jan - Feb | Focus: CNS Output",
+                type: "standard",
+                exercises: [
+                    { name: "Warm: Iron Shank & Pogo", sets: "1", reps: "5m", rest: "-", notes: "Stiff ankles. Bouncy." },
+                    { name: "A. Trap Bar Deadlift", sets: "4", reps: "3", rest: "3-5m", notes: "Max Intent. Fast." },
+                    { name: "B. Depth Jump", sets: "3", reps: "3", rest: "3m", notes: "Fast contact. Minimal noise." },
+                    { name: "C. SA Landmine Jerk", sets: "4", reps: "3/arm", rest: "2m", notes: "Violent punch." },
+                    { name: "D. Nordic Lower", sets: "3", reps: "4", rest: "2m", notes: "Hamstring armour. 5s down." }
+                ]
+            },
+            {
+                block: "BLOCK 1: NEURAL PRIME",
+                day: "THURSDAY",
+                title: "TUNE UP",
+                subtitle: "Recovery & Preparation Session",
+                type: "thursday",
+                options: {
+                    a: { title: "OPTION A: PLAYED MATCH", focus: "Flush", tasks: ["Bike Spin (Zone 1) - 15 Mins", "Foam Roll / Tissue - 10 Mins", "T-Spine Rotation - 3 x 10"] },
+                    b: { title: "OPTION B: NON-SELECTION", focus: "Potentiation", tasks: ["A. Split Squat (Fast) - 3 x 5/leg", "B. Pull Ups (Weighted) - 3 x 3", "C. Box Jumps - 3 x 3"] }
+                }
+            },
+            {
+                block: "BLOCK 1: NEURAL PRIME",
+                day: "FRIDAY",
+                title: "VELOCITY",
+                subtitle: "The Kryptonite Session",
+                type: "standard",
+                exercises: [
+                    { name: "A. Drop Jumps", sets: "3", reps: "4", rest: "2m", notes: "Reactive. Stiff ankle." },
+                    { name: "B. Flying 10s", sets: "4", reps: "1", rest: "3m", notes: "20m build up -> 10m MAX" },
+                    { name: "C. Curved Sprints", sets: "4", reps: "20m", rest: "2m", notes: "Lean into the turn." }
+                ]
+            },
+            // BLOCK 2
+            {
+                block: "BLOCK 2: THE SPEED PEAK",
+                day: "MONDAY",
+                title: "BALLISTIC POWER",
+                subtitle: "March | Focus: Rate of Force Development",
+                type: "standard",
+                exercises: [
+                    { name: "A. Trap Bar Jumps", sets: "4", reps: "3", rest: "3m", notes: "20% Load. Jump with bar." },
+                    { name: "B. Single Leg Box Jump", sets: "4", reps: "3/leg", rest: "2m", notes: "Explosive drive." },
+                    { name: "C. Speed Bench Press", sets: "5", reps: "3", rest: "2m", notes: "Punch the bar. 50% Load." },
+                    { name: "D. Med Ball Throw", sets: "4", reps: "5", rest: "2m", notes: "Chest pass against wall." }
+                ]
+            },
+            {
+                block: "BLOCK 2: THE SPEED PEAK",
+                day: "THURSDAY",
+                title: "TUNE UP",
+                subtitle: "Recovery & Preparation Session",
+                type: "thursday",
+                options: {
+                    a: { title: "OPTION A: PLAYED MATCH", focus: "Flush", tasks: ["Bike Spin (Zone 1) - 15 Mins", "Foam Roll / Tissue - 10 Mins", "T-Spine Rotation - 3 x 10"] },
+                    b: { title: "OPTION B: NON-SELECTION", focus: "Potentiation", tasks: ["A. Split Squat (Fast) - 3 x 5/leg", "B. Pull Ups (Weighted) - 3 x 3", "C. Box Jumps - 3 x 3"] }
+                }
+            },
+            {
+                block: "BLOCK 2: THE SPEED PEAK",
+                day: "FRIDAY",
+                title: "GAME SPEED",
+                subtitle: "March | Focus: Start & Reaction",
+                type: "standard",
+                exercises: [
+                    { name: "A. Hurdle Hops", sets: "3", reps: "4", rest: "-", notes: "Rhythm & Height" },
+                    { name: "B. Sprint Starts", sets: "5", reps: "10m", rest: "-", notes: "Falling start. Accel." },
+                    { name: "C. Agility Grid", sets: "4", reps: "5s", rest: "-", notes: "Fast feet. Reaction." }
+                ]
+            },
+            // BLOCK 3
+            {
+                block: "BLOCK 3: EXAM MODE",
+                day: "MONDAY",
+                title: "NEURAL MAINTENANCE",
+                subtitle: "Apr - Jun | Focus: Min Effective Dose",
+                type: "standard",
+                exercises: [
+                    { name: "1. Trap Bar DL", sets: "3", reps: "3", rest: "3m", notes: "Keep heavy weight, low reps" },
+                    { name: "2. Chin Up", sets: "3", reps: "4", rest: "2m", notes: "Full range" },
+                    { name: "3. Nordic Lower", sets: "3", reps: "3", rest: "2m", notes: "Protect hamstrings" }
+                ]
+            },
+            {
+                block: "BLOCK 3: EXAM MODE",
+                day: "FRIDAY",
+                title: "SPEED MICRO-DOSE",
+                subtitle: "Apr - Jun | Focus: Wake up the brain",
+                type: "standard",
+                exercises: [
+                    { name: "1. Warm Up", sets: "1", reps: "5m", rest: "-", notes: "Skip/Jog" },
+                    { name: "2. Sprint Starts", sets: "3", reps: "10m", rest: "-", notes: "Acceleration" },
+                    { name: "3. Flying Sprint", sets: "2", reps: "20m", rest: "-", notes: "95% Speed. Go home." }
+                ]
+            },
+            // BLOCK 4
+            {
+                block: "BLOCK 4: MATCH READY",
+                day: "MONDAY",
+                title: "STRENGTH MAINTENANCE",
+                subtitle: "Aug - Sep | Focus: The Engine",
+                type: "standard",
+                exercises: [
+                    { name: "1. Trap Bar DL", sets: "3", reps: "3", rest: "3m", notes: "Keep heavy weight, low reps" },
+                    { name: "2. Chin Up", sets: "3", reps: "4", rest: "2m", notes: "Full range" },
+                    { name: "3. Nordic Lower", sets: "3", reps: "3", rest: "2m", notes: "Protect hamstrings" }
+                ]
+            },
+            {
+                block: "BLOCK 4: MATCH READY",
+                day: "THURSDAY",
+                title: "TUNE UP",
+                subtitle: "Recovery & Preparation Session",
+                type: "thursday",
+                options: {
+                    a: { title: "OPTION A: PLAYED MATCH", focus: "Flush", tasks: ["Bike Spin (Zone 1) - 15 Mins", "Foam Roll / Tissue - 10 Mins", "T-Spine Rotation - 3 x 10"] },
+                    b: { title: "OPTION B: NON-SELECTION", focus: "Potentiation", tasks: ["A. Split Squat (Fast) - 3 x 5/leg", "B. Pull Ups (Weighted) - 3 x 3", "C. Box Jumps - 3 x 3"] }
+                }
+            },
+            {
+                block: "BLOCK 4: MATCH READY",
+                day: "FRIDAY",
+                title: "RSA PROTOCOL",
+                subtitle: "Aug - Sep | Focus: Repeat Sprint Ability",
+                type: "interval",
+                headers: ["Weeks", "Sets", "Reps Per Set", "Notes"],
+                rows: [
+                    { col1: "Week 1-2", col2: "3 Sets", col3: "6 Reps", col4: "35m Distance. 10s Rest." },
+                    { col1: "Week 3-4", col2: "4 Sets", col3: "6 Reps", col4: "Increase volume." },
+                    { col1: "Week 5+", col2: "5-6 Sets", col3: "6 Reps", col4: "Game Ready." }
+                ]
+            }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Sheet = ({ data, profile }) => {
+            return (
+                <div className="print-container page-break relative w-full max-w-[1100px] mx-auto bg-white p-6 md:p-10 mb-8 shadow-xl print:shadow-none print:mb-0 print:p-4 border-t-[8px] border-brand-red box-border">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <h1 className="font-brand text-5xl font-bold uppercase tracking-tighter text-brand-red mb-1">{profile}</h1>
+                            <div className="flex items-center gap-2">
+                                <span className="bg-black text-white px-2 py-0.5 text-sm font-bold tracking-widest uppercase">Newman Rugby Academy</span>
+                                <span className="text-gray-500 text-sm font-semibold tracking-wider uppercase">Project Ace Elite</span>
+                            </div>
+                        </div>
+                        <div className="text-right space-y-2">
+                            <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Name</span>
+                                <div className="border-b-2 border-gray-300 w-48"></div>
+                            </div>
+                            <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Date</span>
+                                <div className="border-b-2 border-gray-300 w-48"></div>
+                            </div>
+                            <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Block</span>
+                                <div className="border-b-2 border-gray-300 w-48"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sub-Header Bar */}
+                    <div className="flex items-center gap-4 mb-4 border-b-2 border-gray-200 pb-2">
+                        <h2 className="font-brand text-2xl text-black uppercase">{data.day} <span className="text-gray-300 mx-2">|</span> <span className="text-brand-red">{data.title}</span></h2>
+                        <span className="text-sm font-bold text-gray-500 uppercase tracking-wide ml-auto bg-gray-100 px-3 py-1 rounded">{data.block}</span>
+                    </div>
+
+                    <p className="text-gray-500 italic mb-6 text-sm">{data.subtitle}</p>
+
+                    {/* Content Logic */}
+                    {data.type === 'standard' && <StandardTable exercises={data.exercises} />}
+                    {data.type === 'thursday' && <ThursdayLayout options={data.options} />}
+                    {data.type === 'interval' && <IntervalTable headers={data.headers} rows={data.rows} />}
+
+                    {/* Footer */}
+                    <div className="mt-8 flex gap-4 h-32">
+                        <div className="flex-1 border-2 border-dashed border-gray-300 rounded-lg p-3 relative">
+                            <span className="absolute top-2 left-3 text-xs font-bold text-gray-400 uppercase tracking-widest">Session Notes</span>
+                            <div className="h-full flex items-end">
+                                <span className="text-xs text-gray-300 italic w-full text-center">(Record injuries, RPE, or new PBs here)</span>
+                            </div>
+                        </div>
+                        <div className="w-48 border-2 border-black rounded-lg flex flex-col items-center justify-center bg-gray-50">
+                             {/* QR Placeholder */}
+                             <div className="w-16 h-16 bg-gray-800 mb-2 flex items-center justify-center text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                            </div>
+                             <span className="text-[10px] font-bold uppercase tracking-widest">Scan to Log Wellness</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const StandardTable = ({ exercises }) => (
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-black text-white uppercase text-xs tracking-wider">
+                            <th className="p-3 w-1/4">Exercise</th>
+                            <th className="p-3 text-center w-24">Sets x Reps</th>
+                            <th className="p-3 text-center w-16">Rest</th>
+                            <th className="p-3 text-center border-l border-gray-700">Set 1</th>
+                            <th className="p-3 text-center border-l border-gray-700">Set 2</th>
+                            <th className="p-3 text-center border-l border-gray-700">Set 3</th>
+                            <th className="p-3 text-center border-l border-gray-700">Set 4</th>
+                            <th className="p-3 w-1/4 border-l border-gray-700">Load / Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-sm">
+                        {exercises.map((ex, idx) => (
+                            <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-gray-100`}>
+                                <td className="p-3 font-bold text-black border-r border-gray-100">{ex.name}</td>
+                                <td className="p-3 text-center font-medium">{ex.sets} &times; {ex.reps}</td>
+                                <td className="p-3 text-center text-gray-500">{ex.rest}</td>
+                                <td className="p-2 border-l border-gray-200 text-center"><div className="w-6 h-6 border-2 border-gray-300 mx-auto bg-white"></div></td>
+                                <td className="p-2 border-l border-gray-200 text-center"><div className="w-6 h-6 border-2 border-gray-300 mx-auto bg-white"></div></td>
+                                <td className="p-2 border-l border-gray-200 text-center"><div className="w-6 h-6 border-2 border-gray-300 mx-auto bg-white"></div></td>
+                                <td className="p-2 border-l border-gray-200 text-center"><div className="w-6 h-6 border-2 border-gray-300 mx-auto bg-white"></div></td>
+                                <td className="p-3 border-l border-gray-200 text-gray-600 italic text-xs">{ex.notes}</td>
+                            </tr>
+                        ))}
+                        {/* Empty spacer rows to fill page if needed */}
+                        {[...Array(2)].map((_, i) => (
+                             <tr key={`spacer-${i}`} className="bg-white border-b border-gray-100 h-12">
+                                <td className="p-3 border-r border-gray-100"></td>
+                                <td colSpan="6" className="border-r border-gray-200"></td>
+                                <td className="p-3"></td>
+                             </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+
+        const ThursdayLayout = ({ options }) => (
+            <div className="grid grid-cols-2 gap-6 h-96">
+                {/* Option A */}
+                <div className="border-2 border-gray-200 rounded-lg p-5 flex flex-col bg-gray-50">
+                    <div className="bg-black text-white px-3 py-1 text-xs font-bold uppercase inline-block self-start mb-2 rounded">Selection Status</div>
+                    <h3 className="font-brand text-2xl text-brand-red mb-1">{options.a.title}</h3>
+                    <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-300 pb-2">Focus: {options.a.focus}</p>
+                    
+                    <ul className="space-y-4 flex-1">
+                        {options.a.tasks.map((task, i) => (
+                            <li key={i} className="flex items-center gap-3">
+                                <div className="w-6 h-6 border-2 border-brand-red rounded-full flex-shrink-0 bg-white"></div>
+                                <span className="font-medium text-sm text-gray-800">{task}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* Option B */}
+                <div className="border-2 border-gray-200 rounded-lg p-5 flex flex-col bg-white shadow-sm">
+                    <div className="bg-gray-200 text-gray-600 px-3 py-1 text-xs font-bold uppercase inline-block self-start mb-2 rounded">Selection Status</div>
+                    <h3 className="font-brand text-2xl text-black mb-1">{options.b.title}</h3>
+                    <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-300 pb-2">Focus: {options.b.focus}</p>
+                    
+                    <ul className="space-y-4 flex-1">
+                        {options.b.tasks.map((task, i) => (
+                            <li key={i} className="flex items-center gap-3">
+                                <div className="w-6 h-6 border-2 border-gray-400 rounded-sm flex-shrink-0"></div>
+                                <span className="font-medium text-sm text-gray-800">{task}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        );
+
+        const IntervalTable = ({ headers, rows }) => (
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-black text-white uppercase text-xs tracking-wider">
+                            {headers.map((h, i) => <th key={i} className="p-3">{h}</th>)}
+                            <th className="p-3 text-center w-24">Complete</th>
+                        </tr>
+                    </thead>
+                    <tbody className="text-sm">
+                        {rows.map((row, idx) => (
+                            <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-gray-100`}>
+                                <td className="p-3 font-bold">{row.col1}</td>
+                                <td className="p-3 font-medium">{row.col2}</td>
+                                <td className="p-3">{row.col3}</td>
+                                <td className="p-3 text-gray-500 italic">{row.col4}</td>
+                                <td className="p-3 text-center"><div className="w-6 h-6 border-2 border-gray-300 mx-auto bg-white rounded-full"></div></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+
+        const App = () => {
+            return (
+                <div>
+                    <div className="no-print bg-gray-900 text-white p-4 text-center mb-8">
+                        <h2 className="text-xl font-bold mb-2">Printable Session Dashboard</h2>
+                        <p className="text-sm text-gray-400 mb-4">Press CMD+P or CTRL+P to print. Ensure "Background Graphics" is enabled.</p>
+                        <button onClick={() => window.print()} className="bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-6 rounded transition">Print All Sheets</button>
+                    </div>
+
+                    {LIONESS_DATA.map((session, i) => (
+                        <Sheet key={`lion-${i}`} data={session} profile="LIONESS" />
+                    ))}
+
+                    {PANTHER_DATA.map((session, i) => (
+                        <Sheet key={`panther-${i}`} data={session} profile="PANTHER" />
+                    ))}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
